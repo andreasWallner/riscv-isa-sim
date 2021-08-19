@@ -270,6 +270,14 @@ static int cto(reg_t val)
   return res;
 }
 
+struct cycle_model_t {
+  cycle_model_t(processor_t* p) : p_(p) {}
+  virtual size_t get_cycles(insn_t insn, bool isJump, bool peek=false) = 0;
+  virtual ~cycle_model_t() {}
+
+  processor_t *p_;
+};
+
 // this class represents one processor in a RISC-V machine.
 class processor_t : public abstract_device_t
 {
@@ -287,6 +295,9 @@ public:
 #endif
   void reset();
   void step(size_t n); // run for n cycles
+  void record_cycles(insn_t insn, bool isJump) {
+    state.mcycle += hazard_unit->get_cycles(insn, isJump, false);
+  }
   void set_csr(int which, reg_t val);
   uint32_t get_id() const { return id; }
   reg_t get_csr(int which, insn_t insn, bool write, bool peek = 0);
@@ -438,6 +449,7 @@ private:
   simif_t* sim;
   mmu_t* mmu; // main memory is always accessed via the mmu
   std::unordered_map<std::string, extension_t*> custom_extensions;
+  cycle_model_t* hazard_unit;
   disassembler_t* disassembler;
   state_t state;
   uint32_t id;
@@ -555,6 +567,19 @@ public:
   };
 
   vectorUnit_t VU;
+};
+
+struct cycle_model_4stage : public cycle_model_t {
+  cycle_model_4stage(processor_t *p) : cycle_model_t(p) {}
+  size_t get_cycles(insn_t insn, bool isJump, bool peek=false) {
+    if(isJump) {
+      FILE *log_file = p_->get_log_file();
+      fprintf(log_file, "core%4" PRId32 ": === FLUSH ===", p_->get_id());
+    }
+
+    size_t stall_cycles = isJump ? 3 : 0;
+    return 1 + stall_cycles;
+  }
 };
 
 reg_t illegal_instruction(processor_t* p, insn_t insn, reg_t pc);

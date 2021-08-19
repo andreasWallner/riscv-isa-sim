@@ -178,6 +178,7 @@ static inline reg_t execute_insn(processor_t* p, reg_t pc, insn_fetch_t fetch)
 
   try {
     npc = fetch.func(p, fetch.insn, pc);
+    p->record_cycles(fetch.insn, npc != pc + fetch.insn.length());
     if (npc != PC_SERIALIZE_BEFORE) {
 
 #ifdef RISCV_ENABLE_COMMITLOG

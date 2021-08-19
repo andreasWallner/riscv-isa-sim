@@ -52,6 +52,8 @@ processor_t::processor_t(const char* isa, const char* priv, const char* varch,
     for (auto disasm_insn : e.second->get_disasms())
       disassembler->add_insn(disasm_insn);
 
+  hazard_unit = new cycle_model_4stage(this);
+
   set_pmp_granularity(1 << PMP_SHIFT);
   set_pmp_num(state.max_pmp);
 
@@ -78,6 +80,7 @@ processor_t::~processor_t()
 
   delete mmu;
   delete disassembler;
+  delete hazard_unit;
 }
 
 static void bad_option_string(const char *option, const char *value,
