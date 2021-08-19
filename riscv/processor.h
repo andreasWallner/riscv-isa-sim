@@ -172,6 +172,7 @@ struct state_t
   reg_t mscratch;
   reg_t mtvec;
   reg_t mcause;
+  reg_t mcycle;
   reg_t minstret;
   reg_t mie;
   reg_t mip;
