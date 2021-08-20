@@ -1978,3 +1978,22 @@ void processor_t::trigger_updated()
     }
   }
 }
+
+size_t cycle_model_4stage::get_cycles(insn_t insn, bool isJump) {
+  FILE *log_file = p_->get_log_file();
+  if(isJump) {
+    fprintf(log_file, "core%4" PRId32 ": === FLUSH ===", p_->get_id());
+  }
+
+  size_t divide_cycles = [&](){
+    const auto masked = insn.bits() & MASK_DIV;
+    if(masked == MATCH_DIV || masked == MATCH_DIVU || masked == MATCH_REM || masked == MATCH_REMU || 
+       masked == MATCH_DIVW || masked == MATCH_DIVUW || masked == MATCH_REMW || masked == MATCH_REMUW) {
+      fprintf(log_file, "core%4" PRId32 ": === DIV ===", p_->get_id());
+      return 31;
+    }
+    return 0;
+  }();
+  size_t stall_cycles = isJump ? 3 : 0;
+  return 1 + stall_cycles;
+}
