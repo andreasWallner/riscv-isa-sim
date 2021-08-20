@@ -272,7 +272,7 @@ static int cto(reg_t val)
 
 struct cycle_model_t {
   cycle_model_t(processor_t* p) : p_(p) {}
-  virtual size_t get_cycles(insn_t insn, bool isJump) = 0;
+  virtual size_t get_cycles(insn_t insn, bool isJump, bool debug) = 0;
   virtual ~cycle_model_t() {}
 
   processor_t *p_;
@@ -296,7 +296,7 @@ public:
   void reset();
   void step(size_t n); // run for n cycles
   void record_cycles(insn_t insn, bool isJump) {
-    state.mcycle += hazard_unit->get_cycles(insn, isJump);
+    state.mcycle += hazard_unit->get_cycles(insn, isJump, debug);
   }
   void set_csr(int which, reg_t val);
   uint32_t get_id() const { return id; }
@@ -571,7 +571,7 @@ public:
 
 struct cycle_model_4stage : public cycle_model_t {
   cycle_model_4stage(processor_t *p) : cycle_model_t(p) {}
-  size_t get_cycles(insn_t insn, bool isJump);
+  size_t get_cycles(insn_t insn, bool isJump, bool debug);
 };
 
 reg_t illegal_instruction(processor_t* p, insn_t insn, reg_t pc);
