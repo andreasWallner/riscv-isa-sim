@@ -941,6 +941,10 @@ void processor_t::set_csr(int which, reg_t val)
     case 0x7c0:
       putc(val, stdout);
       break;
+    case 0x7c1:
+      fflush(stdout);
+      exit(val);
+      break;
     case CSR_SENTROPY:
       es.set_sentropy(val);
       break;
