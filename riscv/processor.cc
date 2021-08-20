@@ -1512,6 +1512,10 @@ reg_t processor_t::get_csr(int which, insn_t insn, bool write, bool peek)
 
   switch (which)
   {
+    case 0x7c0:
+    case 0x7c1:
+      ret(0);
+      break;
     case CSR_SENTROPY:
       if (!supports_extension('K'))
         break;
