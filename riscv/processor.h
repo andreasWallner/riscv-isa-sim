@@ -154,7 +154,7 @@ struct type_sew_t<64>
 // architectural state of a RISC-V hart
 struct state_t
 {
-  void reset(reg_t max_isa);
+  void reset(reg_t max_isa, reg_t initial_pc);
 
   static const int num_triggers = 4;
 
@@ -284,7 +284,7 @@ class processor_t : public abstract_device_t
 public:
   processor_t(const char* isa, const char* priv, const char* varch,
               simif_t* sim, uint32_t id, bool halt_on_reset,
-              FILE *log_file, ostream *sout_ptr); // because of command line option --log and -s we need both
+              FILE *log_file, ostream *sout_ptr, reg_t initial_pc_ctr); // because of command line option --log and -s we need both
   ~processor_t();
 
   void set_debug(bool value);
@@ -346,6 +346,7 @@ public:
   bool load(reg_t addr, size_t len, uint8_t* bytes);
   bool store(reg_t addr, size_t len, const uint8_t* bytes);
 
+  reg_t initial_pc;
   // When true, display disassembly of each instruction that's executed.
   bool debug;
   // When true, take the slow simulation path.

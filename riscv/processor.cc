@@ -32,8 +32,8 @@ using std::endl;
 
 processor_t::processor_t(const char* isa, const char* priv, const char* varch,
                          simif_t* sim, uint32_t id, bool halt_on_reset,
-                         FILE* log_file, ostream *sout_ptr_ctor)
-  : debug(false), halt_request(HR_NONE), sim(sim), id(id), xlen(0),
+                         FILE* log_file, ostream *sout_ptr_ctor, reg_t initial_pc_ctr)
+  : initial_pc(initial_pc_ctr), debug(false), halt_request(HR_NONE), sim(sim), id(id), xlen(0),
   histogram_enabled(false), log_commits_enabled(false),
   log_file(log_file), halt_on_reset(halt_on_reset),
   extension_table(256, false), impl_table(256, false), last_pc(1), executions(1)
@@ -326,9 +326,9 @@ void processor_t::parse_isa_string(const char* str)
     bad_isa_string(str, "'Q' extension requires 'D'");
 }
 
-void state_t::reset(reg_t max_isa)
+void state_t::reset(reg_t max_isa, reg_t initial_pc)
 {
-  pc = DEFAULT_RSTVEC;
+  pc = initial_pc;
   XPR.reset();
   FPR.reset();
 
@@ -480,7 +480,7 @@ void processor_t::enable_log_commits()
 
 void processor_t::reset()
 {
-  state.reset(max_isa);
+  state.reset(max_isa, initial_pc);
 #ifdef RISCV_ENABLE_DUAL_ENDIAN
   if (mmu->is_target_big_endian())
     state.mstatus |= MSTATUS_UBE | MSTATUS_SBE | MSTATUS_MBE;

@@ -90,7 +90,7 @@ sim_t::sim_t(const char* isa, const char* priv, const char* varch,
   for (size_t i = 0; i < nprocs; i++) {
     int hart_id = hartids.empty() ? i : hartids[i];
     procs[i] = new processor_t(isa, priv, varch, this, hart_id, halted,
-                               log_file.get(), &sout);
+                               log_file.get(), &sout, (start_pc == reg_t(-1) || dtb_enabled) ? DEFAULT_RSTVEC : start_pc);
   }
 
   make_dtb();
